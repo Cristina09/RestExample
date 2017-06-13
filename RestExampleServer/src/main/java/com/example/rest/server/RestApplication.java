@@ -15,7 +15,7 @@ public class RestApplication extends Application {
     private Set<Object> singletons = new HashSet<Object>();
 
     public RestApplication() {
-        singletons.add(new EmbargoRecordServiceImpl());
+         singletons.add(new EmbargoRecordServiceImpl());
     }
 
     @Override
