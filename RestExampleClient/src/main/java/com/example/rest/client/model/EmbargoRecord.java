@@ -19,26 +19,44 @@ import java.util.Date;
 public class EmbargoRecord {
 
     @XmlElement
+    private Integer id;
+    @XmlElement
     private Integer firmId;
     @XmlElement
     private String emailDomain;
     @XmlElement
-    private Integer anonDays;
+    private Integer fullAnonDays;
     @XmlElement
-    private Integer fullDays;
+    private Integer firmVisibleDays;
+    @XmlElement
+    private Integer fullVisibleDays;
     @XmlElement
     @XmlJavaTypeAdapter(DateAdapter.class)
     private Date activeFrom;
+    @XmlElement
+    @XmlJavaTypeAdapter(DateAdapter.class)
+    private Date activeTo;
 
     public EmbargoRecord() { }
 
-    public EmbargoRecord(Integer firmId, String emailDomain, Integer anonDays, Integer fullDays, Date activeFrom) {
+    public EmbargoRecord(Integer id, Integer firmId, String emailDomain, Integer fullAnonDays, Integer firmVisibleDays, Integer fullVisibleDays, Date activeFrom, Date activeTo) {
+        this.id = id;
         this.firmId = firmId;
         this.emailDomain = emailDomain;
-        this.anonDays = anonDays;
-        this.fullDays = fullDays;
+        this.fullAnonDays = fullAnonDays;
+        this.firmVisibleDays = firmVisibleDays;
+        this.fullVisibleDays = fullVisibleDays;
         this.activeFrom = activeFrom;
+        this.activeTo = activeTo;
     }
+
+    public Integer getId() { return id; }
+
+    public void setId(Integer id) { this.id = id; }
+
+    public Date getActiveTo() { return activeTo; }
+
+    public void setActiveTo(Date activeTo) { this.activeTo = activeTo; }
 
     public Date getActiveFrom() {
         return activeFrom;
@@ -48,20 +66,28 @@ public class EmbargoRecord {
         this.activeFrom = activeFrom;
     }
 
-    public Integer getFullDays() {
-        return fullDays;
+    public Integer getFullVisibleDays() {
+        return fullVisibleDays;
     }
 
-    public void setFullDays(Integer fullDays) {
-        this.fullDays = fullDays;
+    public void setFullVisibleDays(Integer fullVisibleDays) {
+        this.fullVisibleDays = fullVisibleDays;
     }
 
-    public Integer getAnonDays() {
-        return anonDays;
+    public Integer getFirmVisibleDays() {
+        return firmVisibleDays;
     }
 
-    public void setAnonDays(Integer anonDays) {
-        this.anonDays = anonDays;
+    public void setFirmVisibleDays(Integer firmVisibleDays) {
+        this.firmVisibleDays = firmVisibleDays;
+    }
+
+    public Integer getFullAnonDays() {
+        return fullAnonDays;
+    }
+
+    public void setFullAnonDays(Integer fullAnonDays) {
+        this.fullAnonDays = fullAnonDays;
     }
 
     public String getEmailDomain() {
@@ -72,9 +98,7 @@ public class EmbargoRecord {
         this.emailDomain = emailDomain;
     }
 
-    public Integer getFirmId() {
-        return firmId;
-    }
+    public Integer getFirmId() { return firmId; }
 
     public void setFirmId(Integer firmId) {
         this.firmId = firmId;

@@ -75,7 +75,7 @@ public class EmbargoRecordDaoImpl implements EmbargoRecordDao {
     public EmbargoRecord addEmbargoRecord(EmbargoRecord embargoRecord) {
         List<Query> queries = new ArrayList<>();
         queries.add(new Query("deleteEmbargoRecord", embargoRecord.getFirmId(), embargoRecord.getEmailDomain()));
-        queries.add(new Query("insertEmbargoRecord", embargoRecord.getFirmId(), embargoRecord.getEmailDomain(), embargoRecord.getAnonDays(), embargoRecord.getFullDays(), embargoRecord.getActiveFrom()));
+        queries.add(new Query("insertEmbargoRecord", embargoRecord.getFirmId(), embargoRecord.getEmailDomain(), embargoRecord.getFullAnonDays(), embargoRecord.getFirmVisibleDays(), embargoRecord.getFullVisibleDays(), embargoRecord.getActiveFrom(), embargoRecord.getActiveTo()));
 
         try {
             if (!this.connection.executeTransaction(queries)){
@@ -113,13 +113,18 @@ public class EmbargoRecordDaoImpl implements EmbargoRecordDao {
     }
 
     private EmbargoRecord buildObject(ResultSet rs) throws SQLException {
+        Integer id = rs.getInt("id");
         Integer firmId = rs.getInt("firm_id");
         String emailDomain = rs.getString("email_domain");
-        Integer anonDays = rs.getInt("anon_days");
-        Integer fullDays = rs.getInt("full_days");
-        String date = rs.getString("active_from");
+        Integer fullanonDays = rs.getInt("full_anon_days");
+        Integer firmVisibleDays = rs.getInt("firm_visible_days");
+        Integer fullVisibleDays = rs.getInt("full_visible_days");
+        String dateFrom = rs.getString("active_from");
         //todo: convert String from db into date
         Date activeFrom = new Date();
-        return new EmbargoRecord(firmId, emailDomain, anonDays, fullDays, activeFrom);
+        String dateTo = rs.getString("active_to");
+        //todo: convert String from db into date
+        Date activeTo = new Date();
+        return new EmbargoRecord(id, firmId, emailDomain, fullanonDays, firmVisibleDays, fullVisibleDays, activeFrom, activeTo);
     }
 }

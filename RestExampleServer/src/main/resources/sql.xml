@@ -1,33 +1,46 @@
 <Sql>
-    <Statement name="getEmbargoRecord" sqlString="select firm_id,
+    <Statement name="getEmbargoRecord" sqlString="select id,
+                                                         firm_id,
                                                          email_domain,
-                                                         anon_days,
-                                                         full_days,
-                                                         active_from
+                                                         full_anon_days,
+                                                         firm_visible_days,
+                                                         full_visible_days,
+                                                         active_from,
+                                                         active_to
                                              from firm_embargo_domain
                                              where firm_id = ? and email_domain = ?" />
-    <Statement name="getEmbargoRecordsForFirmId" sqlString="select firm_id,
+    <Statement name="getEmbargoRecordsForFirmId" sqlString="select id,
+                                                         firm_id,
                                                          email_domain,
-                                                         anon_days,
-                                                         full_days,
-                                                         active_from
+                                                         full_anon_days,
+                                                         firm_visible_days,
+                                                         full_visible_days,
+                                                         active_from,
+                                                         active_to
                                              from firm_embargo_domain
                                              where firm_id = ?" />
-    <Statement name="getEmbargoRecords" sqlString="select firm_id,
+    <Statement name="getEmbargoRecords" sqlString="select id,
+                                                         firm_id,
                                                          email_domain,
-                                                         anon_days,
-                                                         full_days,
-                                                         active_from
+                                                         full_anon_days,
+                                                         firm_visible_days,
+                                                         full_visible_days,
+                                                         active_from,
+                                                         active_to
                                              from firm_embargo_domain" />
     <Statement name="deleteEmbargoRecord" sqlString="delete from firm_embargo_domain
 	                                                 where firm_id = ? and
 	                                                 email_domain = ?" />
     <Statement name="deleteEmbargoRecords" sqlString="delete from firm_embargo_domain
 	                                                  where firm_id = ?" />
-    <Statement name="insertEmbargoRecord" sqlString="insert into firm_embargo_domain (firm_id,
-	                                                                                  email_domain,
-	                                                                                  anon_days,
-                                                                                      full_days,
-                                                                                      active_from)
-                                                     values (?, ?, ?, ?, ?)" />
+    <Statement name="insertEmbargoRecord" sqlString="insert into firm_embargo_domain (id,
+                                                                                      firm_id,
+                                                                                      email_domain,
+                                                                                      full_anon_days,
+                                                                                      firm_visible_days,
+                                                                                      full_visible_days,
+                                                                                      active_from,
+                                                                                      active_to)
+                                                    select coalesce(max(id) + 1, 1)?, ?, ?, ?, ?, ?, ?
+                                                    from firm_embargo_domain" />
 </Sql>
