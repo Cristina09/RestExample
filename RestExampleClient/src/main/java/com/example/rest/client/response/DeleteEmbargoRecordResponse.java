@@ -47,6 +47,7 @@ public class DeleteEmbargoRecordResponse {
 
     public enum ErrorCode {
         RECORD_NOT_DELETED("Could not delete embargo record!"),
+        RECORDS_NOT_DELETED("Could not delete embargo records!"),
         DATABASE_EXCEPTION("Could not initiate DaoFactory!"),;
 
         private final String message;
