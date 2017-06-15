@@ -1,9 +1,7 @@
-/**
+package com.example.rest.server.web; /**
  * Created by Cristina
  * Date: 5/30/2017
  */
-package com.example.rest.server.web;
-
 import com.example.rest.client.EmbargoRecordService;
 import com.example.rest.client.model.EmbargoRecord;
 import com.example.rest.client.response.DeleteEmbargoRecordResponse;
@@ -11,8 +9,9 @@ import com.example.rest.client.response.EmbargoRecordListResponse;
 import com.example.rest.client.response.EmbargoRecordResponse;
 import com.example.rest.server.db.dao.DaoFactory;
 import com.example.rest.server.db.dao.EmbargoRecordDao;
-import org.apache.log4j.Logger;
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import org.apache.log4j.Logger;
 
 import javax.validation.Valid;
 import javax.ws.rs.*;
@@ -20,6 +19,7 @@ import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.List;
 
+@Singleton
 @Path("/embargo")
 public class EmbargoRecordServiceImpl implements EmbargoRecordService {
     private static final Logger LOGGER = Logger.getLogger(EmbargoRecordServiceImpl.class);
@@ -32,7 +32,7 @@ public class EmbargoRecordServiceImpl implements EmbargoRecordService {
     @GET
     @Path("/get")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public EmbargoRecordListResponse getEmbargoRecordsForFirmId() {
+    public EmbargoRecordListResponse getEmbargoRecords() {
         LOGGER.info(String.format("Received GET request for [/embargo]"));
         DaoFactory daoFactory = null;
         List<EmbargoRecord> embargoRecords = null;

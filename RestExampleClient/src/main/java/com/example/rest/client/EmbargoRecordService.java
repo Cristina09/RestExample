@@ -22,7 +22,7 @@ public interface EmbargoRecordService {
     @GET
     @Path("/get")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public EmbargoRecordListResponse getEmbargoRecordsForFirmId();
+    public EmbargoRecordListResponse getEmbargoRecords();
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
