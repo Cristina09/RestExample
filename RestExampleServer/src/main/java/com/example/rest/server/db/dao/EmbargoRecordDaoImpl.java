@@ -34,7 +34,21 @@ public class EmbargoRecordDaoImpl implements EmbargoRecordDao {
                 record = this.buildObject(rs);
             }
         } catch (Exception exception) {
-            LOGGER.error(String.format("Exception getting Embargo Record from DB for firmID [%d] and email Domain [%s]: ", firmId, emailDomain), exception);
+            LOGGER.error(String.format("Exception getting EmbargoRecord from DB for firmID [%d] and email Domain [%s]: ", firmId, emailDomain), exception);
+        }
+        return record;
+    }
+
+    @Override
+    public EmbargoRecord getEmbargoRecordById(Integer Id) {
+        EmbargoRecord record = null;
+        try {
+            ResultSet rs = this.connection.executeQuery("getEmbargoRecordById", Id);
+            if (rs.next()) {
+                record = this.buildObject(rs);
+            }
+        } catch (Exception exception) {
+            LOGGER.error(String.format("Exception getting EmbargoRecord from DB for ID [%d]: ", Id), exception);
         }
         return record;
     }
@@ -51,7 +65,7 @@ public class EmbargoRecordDaoImpl implements EmbargoRecordDao {
                 }
             }
         } catch (Exception exception) {
-            LOGGER.error(String.format("Exception getting Embargo Record from DB for firmID [%d]: ", firmId), exception);
+            LOGGER.error(String.format("Exception getting EmbargoRecord from DB for firmID [%d]: ", firmId), exception);
         }
         return records;
     }
@@ -68,7 +82,7 @@ public class EmbargoRecordDaoImpl implements EmbargoRecordDao {
                 }
             }
         } catch (Exception exception) {
-            LOGGER.error(String.format("Exception getting Embargo Record from DB."), exception);
+            LOGGER.error(String.format("Exception getting EmbargoRecord from DB."), exception);
         }
         return records;
     }
@@ -76,16 +90,16 @@ public class EmbargoRecordDaoImpl implements EmbargoRecordDao {
     @Override
     public EmbargoRecord addEmbargoRecord(EmbargoRecord embargoRecord) {
         List<Query> queries = new ArrayList<>();
-        queries.add(new Query("deleteEmbargoRecord", embargoRecord.getFirmId(), embargoRecord.getEmailDomain()));
+        queries.add(new Query("deleteEmbargoRecord", embargoRecord.getId()));
         queries.add(new Query("insertEmbargoRecord", embargoRecord.getFirmId(), embargoRecord.getEmailDomain(), embargoRecord.getFullAnonDays(), embargoRecord.getFirmVisibleDays(), embargoRecord.getFullVisibleDays(), embargoRecord.getActiveFrom(), embargoRecord.getActiveTo()));
 
         try {
             if (!this.connection.executeTransaction(queries)){
-                LOGGER.error(String.format("Could not save EmbargoRecord for firm [%d]!", embargoRecord.getFirmId()));
+                LOGGER.error(String.format("Could not save EmbargoRecord for id [%d]!", embargoRecord.getId()));
                 return null;
             }
         } catch (Exception exception) {
-            LOGGER.error(String.format("Exception saving EmbargoRecord for firm [%d]: ", embargoRecord.getFirmId()), exception);
+            LOGGER.error(String.format("Exception saving EmbargoRecord for id [%d]: ", embargoRecord.getId()), exception);
             return null;
         }
 
@@ -93,12 +107,23 @@ public class EmbargoRecordDaoImpl implements EmbargoRecordDao {
     }
 
     @Override
-    public Boolean deleteEmbargoRecord(Integer firmId, String emailDomain) {
+    public Boolean updateEmbargoRecord(EmbargoRecord embargoRecord) {
         try {
-            Boolean rs = this.connection.executeUpdate("deleteEmbargoRecord", firmId, emailDomain);
+            Boolean rs = this.connection.executeUpdate("updateEmbargoRecord", embargoRecord.getFirmId(), embargoRecord.getEmailDomain(), embargoRecord.getFullAnonDays(), embargoRecord.getFirmVisibleDays(), embargoRecord.getFullVisibleDays(), embargoRecord.getActiveFrom(), embargoRecord.getActiveTo(), embargoRecord.getId());
+            return rs;
+        }catch (Exception exception) {
+            LOGGER.error(String.format("Exception updating EmbargoRecord for ID [%d]: ", embargoRecord.getId()), exception);
+            return false;
+        }
+    }
+
+    @Override
+    public Boolean deleteEmbargoRecord(Integer Id) {
+        try {
+            Boolean rs = this.connection.executeUpdate("deleteEmbargoRecord", Id);
             return rs;
         } catch (Exception exception) {
-            LOGGER.error(String.format("Exception deleting Embargo Record for firmID [%d] and email Domain [%s]: ", firmId, emailDomain), exception);
+            LOGGER.error(String.format("Exception deleting EmbargoRecord for ID [%d]: ", Id), exception);
             return false;
         }
     }
@@ -109,10 +134,52 @@ public class EmbargoRecordDaoImpl implements EmbargoRecordDao {
             Boolean rs = this.connection.executeUpdate("deleteEmbargoRecords", firmId);
             return rs;
         } catch (Exception exception) {
-            LOGGER.error(String.format("Exception deleting Embargo Record for firmID [%d]: ", firmId), exception);
+            LOGGER.error(String.format("Exception deleting EmbargoRecord for firmID [%d]: ", firmId), exception);
             return false;
         }
     }
+
+    @Override
+    public EmbargoRecord addEmbargoRecordBackup(EmbargoRecord embargoRecord) {
+        List<Query> queries = new ArrayList<>();
+        queries.add(new Query("insertEmbargoRecordBackup", embargoRecord.getId(), embargoRecord.getFirmId(), embargoRecord.getEmailDomain(), embargoRecord.getFullAnonDays(), embargoRecord.getFirmVisibleDays(), embargoRecord.getFullVisibleDays(), embargoRecord.getActiveFrom(), embargoRecord.getActiveTo()));
+
+        try {
+            if (!this.connection.executeTransaction(queries)){
+                LOGGER.error(String.format("Could not save EmbargoRecordBackup for id [%d]!", embargoRecord.getId()));
+                return null;
+            }
+        } catch (Exception exception) {
+            LOGGER.error(String.format("Exception saving EmbargoRecordBackup for id [%d]: ", embargoRecord.getId()), exception);
+            return null;
+        }
+
+        return embargoRecord;
+    }
+
+    @Override
+    public Boolean deleteEmbargoRecordBackup(Integer Id) {
+        try {
+            Boolean rs = this.connection.executeUpdate("deleteEmbargoRecordBackup", Id);
+            return rs;
+        } catch (Exception exception) {
+            LOGGER.error(String.format("Exception deleting EmbargoRecordBackup for ID [%d]: ", Id), exception);
+            return false;
+        }
+    }
+
+    @Override
+    public Boolean deleteEmbargoRecordsBackup(Integer firmId) {
+        try {
+            Boolean rs = this.connection.executeUpdate("deleteEmbargoRecordsBackup", firmId);
+            return rs;
+        } catch (Exception exception) {
+            LOGGER.error(String.format("Exception deleting EmbargoRecordBackup for firmID [%d]: ", firmId), exception);
+            return false;
+        }
+    }
+
+
 
     private EmbargoRecord buildObject(ResultSet rs) throws SQLException {
         Integer id = rs.getInt("id");
@@ -129,7 +196,7 @@ public class EmbargoRecordDaoImpl implements EmbargoRecordDao {
             try {
                 activeFrom = dateFormat.parse(dateFrom);
             }catch (Exception exception){
-                LOGGER.error(String.format("Exception creating embargo record with id [%d] because of the date from field", id),exception);
+                LOGGER.error(String.format("Exception creating EmbargoRecord with id [%d] because of the date from field", id),exception);
                 return null;
             }
         }
@@ -140,7 +207,7 @@ public class EmbargoRecordDaoImpl implements EmbargoRecordDao {
             try {
                 activeTo = dateFormat.parse(dateTo);
             }catch (Exception exception){
-                LOGGER.error(String.format("Exception creating embargo record with id [%d] because of the date to field", id),exception);
+                LOGGER.error(String.format("Exception creating EmbargoRecord with id [%d] because of the date to field", id),exception);
                 return null;
             }
         }

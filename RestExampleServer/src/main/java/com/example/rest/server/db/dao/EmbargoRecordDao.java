@@ -9,9 +9,14 @@ import java.util.List;
  */
 public interface EmbargoRecordDao {
     EmbargoRecord getEmbargoRecord(Integer firmId, String emailDomain);
+    EmbargoRecord getEmbargoRecordById(Integer Id);
     List<EmbargoRecord> getEmbargoRecordsForFirmId(Integer firmId);
     List<EmbargoRecord> getEmbargoRecords();
     EmbargoRecord addEmbargoRecord(EmbargoRecord embargoRecord);
-    Boolean deleteEmbargoRecord(Integer firmId, String emailDomain);
+    Boolean updateEmbargoRecord(EmbargoRecord embargoRecord);
+    Boolean deleteEmbargoRecord(Integer Id);
     Boolean deleteEmbargoRecords(Integer firmId);
+    EmbargoRecord addEmbargoRecordBackup(EmbargoRecord embargoRecord);
+    Boolean deleteEmbargoRecordBackup(Integer Id);
+    Boolean deleteEmbargoRecordsBackup(Integer firmId);
 }

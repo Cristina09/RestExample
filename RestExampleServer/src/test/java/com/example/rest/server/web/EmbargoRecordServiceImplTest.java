@@ -36,8 +36,8 @@ public class EmbargoRecordServiceImplTest {
         EmbargoRecordService service = target.proxy(EmbargoRecordService.class);
 
         //EmbargoRecordResponse response = service.getEmbargoRecord(1,"cristina.com");
-        EmbargoRecordResponse response = service.getTest();
-        assertNotNull(response);
+//        EmbargoRecordResponse response = service.getTest();
+//        assertNotNull(response);
 
 
 //        Injector injector = Guice.createInjector(new EmbargoRecordServiceModule());

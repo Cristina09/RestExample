@@ -25,10 +25,6 @@ public interface EmbargoRecordService {
     public EmbargoRecordListResponse getEmbargoRecordsForFirmId();
 
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public EmbargoRecordResponse getTest();
-
-    @GET
     @Path("/get/{firmId}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public EmbargoRecordListResponse getEmbargoRecordsForFirmId(@PathParam("firmId") Integer firmId);
@@ -39,13 +35,6 @@ public interface EmbargoRecordService {
     public EmbargoRecordResponse getEmbargoRecord(@PathParam("firmId") Integer firmId,
                                                   @PathParam("emailDomain") String emailDomain);
 
-    @POST
-    @Path("/add/{firmId}/{emailDomain}")
-    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    public EmbargoRecordResponse save(@Valid EmbargoRecord embargoRecord,
-                                      @PathParam("firmId") Integer firmId,
-                                      @PathParam("emailDomain") String emailDomain);
 
     @POST
     @Path("/add")
@@ -53,17 +42,22 @@ public interface EmbargoRecordService {
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     public EmbargoRecordListResponse saveList(@Valid List<EmbargoRecord> embargoRecords);
 
-    @DELETE
-    @Path("/delete/{firmId}/{emailDomain}")
+    @POST
+    @Path("/update")
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    public DeleteEmbargoRecordResponse deleteEmbargoRecord(@PathParam("firmId") Integer firmId,
-                                                           @PathParam("emailDomain") String emailDomain);
+    public EmbargoRecordResponse updateEmbargoRecord(@Valid EmbargoRecord embargoRecord);
 
     @DELETE
-    @Path("/delete/{firmId}")
+    @Path("/delete/{Id}")
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    public DeleteEmbargoRecordResponse deleteEmbargoRecord(@PathParam("firmId") Integer firmId);
+    public DeleteEmbargoRecordResponse deleteEmbargoRecord(@PathParam("Id") Integer Id);
+
+    @DELETE
+    @Path("/delete/firm/{firmId}")
+    @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    public DeleteEmbargoRecordResponse deleteEmbargoRecords(@PathParam("firmId") Integer firmId);
 
 }
