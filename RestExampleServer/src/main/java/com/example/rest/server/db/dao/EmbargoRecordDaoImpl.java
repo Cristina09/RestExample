@@ -7,6 +7,8 @@ import org.apache.log4j.Logger;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -116,15 +118,33 @@ public class EmbargoRecordDaoImpl implements EmbargoRecordDao {
         Integer id = rs.getInt("id");
         Integer firmId = rs.getInt("firm_id");
         String emailDomain = rs.getString("email_domain");
-        Integer fullanonDays = rs.getInt("full_anon_days");
+        Integer fullAnonDays = rs.getInt("full_anon_days");
         Integer firmVisibleDays = rs.getInt("firm_visible_days");
         Integer fullVisibleDays = rs.getInt("full_visible_days");
-        String dateFrom = rs.getString("active_from");
-        //todo: convert String from db into date
+
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.S");
         Date activeFrom = new Date();
-        String dateTo = rs.getString("active_to");
-        //todo: convert String from db into date
+        String dateFrom = rs.getString("active_from");
+        if (dateFrom != null){
+            try {
+                activeFrom = dateFormat.parse(dateFrom);
+            }catch (Exception exception){
+                LOGGER.error(String.format("Exception creating embargo record with id [%d] because of the date from field", id),exception);
+                return null;
+            }
+        }
+
         Date activeTo = new Date();
-        return new EmbargoRecord(id, firmId, emailDomain, fullanonDays, firmVisibleDays, fullVisibleDays, activeFrom, activeTo);
+        String dateTo = rs.getString("active_to");
+        if (dateTo != null){
+            try {
+                activeTo = dateFormat.parse(dateTo);
+            }catch (Exception exception){
+                LOGGER.error(String.format("Exception creating embargo record with id [%d] because of the date to field", id),exception);
+                return null;
+            }
+        }
+
+        return new EmbargoRecord(id, firmId, emailDomain, fullAnonDays, firmVisibleDays, fullVisibleDays, activeFrom, activeTo);
     }
 }
