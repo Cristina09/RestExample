@@ -1,5 +1,6 @@
 package com.example.rest.server.db.dao;
 
+import com.example.rest.client.model.AuditEmbargoRecord;
 import com.example.rest.client.model.EmbargoRecord;
 import com.example.rest.server.db.manager.DBConnection;
 import com.example.rest.server.db.manager.Query;
@@ -90,8 +91,7 @@ public class EmbargoRecordDaoImpl implements EmbargoRecordDao {
     @Override
     public EmbargoRecord addEmbargoRecord(EmbargoRecord embargoRecord) {
         List<Query> queries = new ArrayList<>();
-        queries.add(new Query("deleteEmbargoRecord", embargoRecord.getId()));
-        queries.add(new Query("insertEmbargoRecord", embargoRecord.getFirmId(), embargoRecord.getEmailDomain(), embargoRecord.getFullAnonDays(), embargoRecord.getFirmVisibleDays(), embargoRecord.getFullVisibleDays(), embargoRecord.getActiveFrom(), embargoRecord.getActiveTo()));
+        queries.add(new Query("insertEmbargoRecord", embargoRecord.getFirmId(), embargoRecord.getEmailDomain(), embargoRecord.getFullAnonDays(), embargoRecord.getFirmVisibleDays(), embargoRecord.getFullVisibleDays()));
 
         try {
             if (!this.connection.executeTransaction(queries)){
@@ -109,7 +109,7 @@ public class EmbargoRecordDaoImpl implements EmbargoRecordDao {
     @Override
     public Boolean updateEmbargoRecord(EmbargoRecord embargoRecord) {
         try {
-            Boolean rs = this.connection.executeUpdate("updateEmbargoRecord", embargoRecord.getFirmId(), embargoRecord.getEmailDomain(), embargoRecord.getFullAnonDays(), embargoRecord.getFirmVisibleDays(), embargoRecord.getFullVisibleDays(), embargoRecord.getActiveFrom(), embargoRecord.getActiveTo(), embargoRecord.getId());
+            Boolean rs = this.connection.executeUpdate("updateEmbargoRecord", embargoRecord.getFirmId(), embargoRecord.getEmailDomain(), embargoRecord.getFullAnonDays(), embargoRecord.getFirmVisibleDays(), embargoRecord.getFullVisibleDays(), embargoRecord.getId());
             return rs;
         }catch (Exception exception) {
             LOGGER.error(String.format("Exception updating EmbargoRecord for ID [%d]: ", embargoRecord.getId()), exception);
@@ -129,57 +129,22 @@ public class EmbargoRecordDaoImpl implements EmbargoRecordDao {
     }
 
     @Override
-    public Boolean deleteEmbargoRecords(Integer firmId) {
-        try {
-            Boolean rs = this.connection.executeUpdate("deleteEmbargoRecords", firmId);
-            return rs;
-        } catch (Exception exception) {
-            LOGGER.error(String.format("Exception deleting EmbargoRecord for firmID [%d]: ", firmId), exception);
-            return false;
-        }
-    }
-
-    @Override
-    public EmbargoRecord addEmbargoRecordBackup(EmbargoRecord embargoRecord) {
+    public AuditEmbargoRecord addAuditEmbargoRecord(AuditEmbargoRecord auditEmbargoRecord) {
         List<Query> queries = new ArrayList<>();
-        queries.add(new Query("insertEmbargoRecordBackup", embargoRecord.getId(), embargoRecord.getFirmId(), embargoRecord.getEmailDomain(), embargoRecord.getFullAnonDays(), embargoRecord.getFirmVisibleDays(), embargoRecord.getFullVisibleDays(), embargoRecord.getActiveFrom(), embargoRecord.getActiveTo()));
+        queries.add(new Query("insertAuditEmbargoRecords", auditEmbargoRecord.getFirmId(), auditEmbargoRecord.getEmailDomain(),auditEmbargoRecord.getSource(), auditEmbargoRecord.getUserEmail(), auditEmbargoRecord.getFullAnonDays(), auditEmbargoRecord.getFirmVisibleDays(), auditEmbargoRecord.getFullVisibleDays(), auditEmbargoRecord.getAction(), auditEmbargoRecord.getRecordId()));
 
         try {
             if (!this.connection.executeTransaction(queries)){
-                LOGGER.error(String.format("Could not save EmbargoRecordBackup for id [%d]!", embargoRecord.getId()));
+                LOGGER.error(String.format("Could not save AuditEmbargoRecord for id [%d]!", auditEmbargoRecord.getId()));
                 return null;
             }
         } catch (Exception exception) {
-            LOGGER.error(String.format("Exception saving EmbargoRecordBackup for id [%d]: ", embargoRecord.getId()), exception);
+            LOGGER.error(String.format("Exception saving AuditEmbargoRecord for id [%d]: ", auditEmbargoRecord.getId()), exception);
             return null;
         }
 
-        return embargoRecord;
+        return auditEmbargoRecord;
     }
-
-    @Override
-    public Boolean deleteEmbargoRecordBackup(Integer Id) {
-        try {
-            Boolean rs = this.connection.executeUpdate("deleteEmbargoRecordBackup", Id);
-            return rs;
-        } catch (Exception exception) {
-            LOGGER.error(String.format("Exception deleting EmbargoRecordBackup for ID [%d]: ", Id), exception);
-            return false;
-        }
-    }
-
-    @Override
-    public Boolean deleteEmbargoRecordsBackup(Integer firmId) {
-        try {
-            Boolean rs = this.connection.executeUpdate("deleteEmbargoRecordsBackup", firmId);
-            return rs;
-        } catch (Exception exception) {
-            LOGGER.error(String.format("Exception deleting EmbargoRecordBackup for firmID [%d]: ", firmId), exception);
-            return false;
-        }
-    }
-
-
 
     private EmbargoRecord buildObject(ResultSet rs) throws SQLException {
         Integer id = rs.getInt("id");
@@ -189,29 +154,22 @@ public class EmbargoRecordDaoImpl implements EmbargoRecordDao {
         Integer firmVisibleDays = rs.getInt("firm_visible_days");
         Integer fullVisibleDays = rs.getInt("full_visible_days");
 
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.S");
-        Date activeFrom = new Date();
-        String dateFrom = rs.getString("active_from");
-        if (dateFrom != null){
-            try {
-                activeFrom = dateFormat.parse(dateFrom);
-            }catch (Exception exception){
-                LOGGER.error(String.format("Exception creating EmbargoRecord with id [%d] because of the date from field", id),exception);
-                return null;
-            }
-        }
 
-        Date activeTo = new Date();
-        String dateTo = rs.getString("active_to");
-        if (dateTo != null){
-            try {
-                activeTo = dateFormat.parse(dateTo);
-            }catch (Exception exception){
-                LOGGER.error(String.format("Exception creating EmbargoRecord with id [%d] because of the date to field", id),exception);
-                return null;
-            }
-        }
 
-        return new EmbargoRecord(id, firmId, emailDomain, fullAnonDays, firmVisibleDays, fullVisibleDays, activeFrom, activeTo);
+        return new EmbargoRecord(id, firmId, emailDomain, fullAnonDays, firmVisibleDays, fullVisibleDays);
+    }
+
+    @Override
+    public Integer getLastInsertedId(){
+        Integer id = null;
+        try {
+            ResultSet rs= this.connection.executeQuery("getLastInsertId");
+            if (rs.next()){
+                id = rs.getInt("ID");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return id;
     }
 }

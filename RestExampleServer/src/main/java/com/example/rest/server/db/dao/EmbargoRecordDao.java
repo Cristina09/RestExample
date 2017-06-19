@@ -1,5 +1,6 @@
 package com.example.rest.server.db.dao;
 
+import com.example.rest.client.model.AuditEmbargoRecord;
 import com.example.rest.client.model.EmbargoRecord;
 
 import java.util.List;
@@ -15,8 +16,6 @@ public interface EmbargoRecordDao {
     EmbargoRecord addEmbargoRecord(EmbargoRecord embargoRecord);
     Boolean updateEmbargoRecord(EmbargoRecord embargoRecord);
     Boolean deleteEmbargoRecord(Integer Id);
-    Boolean deleteEmbargoRecords(Integer firmId);
-    EmbargoRecord addEmbargoRecordBackup(EmbargoRecord embargoRecord);
-    Boolean deleteEmbargoRecordBackup(Integer Id);
-    Boolean deleteEmbargoRecordsBackup(Integer firmId);
+    AuditEmbargoRecord addAuditEmbargoRecord(AuditEmbargoRecord auditEmbargoRecord);
+    Integer getLastInsertedId();
 }

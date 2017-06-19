@@ -30,41 +30,21 @@ public class EmbargoRecord {
     private Integer firmVisibleDays;
     @XmlElement
     private Integer fullVisibleDays;
-    @XmlElement
-    @XmlJavaTypeAdapter(DateAdapter.class)
-    private Date activeFrom;
-    @XmlElement
-    @XmlJavaTypeAdapter(DateAdapter.class)
-    private Date activeTo;
 
     public EmbargoRecord() { }
 
-    public EmbargoRecord(Integer id, Integer firmId, String emailDomain, Integer fullAnonDays, Integer firmVisibleDays, Integer fullVisibleDays, Date activeFrom, Date activeTo) {
+    public EmbargoRecord(Integer id, Integer firmId, String emailDomain, Integer fullAnonDays, Integer firmVisibleDays, Integer fullVisibleDays) {
         this.id = id;
         this.firmId = firmId;
         this.emailDomain = emailDomain;
         this.fullAnonDays = fullAnonDays;
         this.firmVisibleDays = firmVisibleDays;
         this.fullVisibleDays = fullVisibleDays;
-        this.activeFrom = activeFrom;
-        this.activeTo = activeTo;
     }
 
     public Integer getId() { return id; }
 
     public void setId(Integer id) { this.id = id; }
-
-    public Date getActiveTo() { return activeTo; }
-
-    public void setActiveTo(Date activeTo) { this.activeTo = activeTo; }
-
-    public Date getActiveFrom() {
-        return activeFrom;
-    }
-
-    public void setActiveFrom(Date activeFrom) {
-        this.activeFrom = activeFrom;
-    }
 
     public Integer getFullVisibleDays() {
         return fullVisibleDays;
