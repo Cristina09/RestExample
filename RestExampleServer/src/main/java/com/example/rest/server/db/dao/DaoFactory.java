@@ -27,4 +27,5 @@ public class DaoFactory {
     }
 
     public EmbargoRecordDao createEmbargoDao() { return new EmbargoRecordDaoImpl(this.connection); }
+    public AuditEmbargoRecordDao createAuditEmbargoDao() { return new AuditEmbargoEmbargoRecordDaoImpl(this.connection); }
 }

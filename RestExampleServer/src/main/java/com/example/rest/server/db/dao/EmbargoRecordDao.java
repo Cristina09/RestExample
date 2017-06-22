@@ -16,6 +16,5 @@ public interface EmbargoRecordDao {
     EmbargoRecord addEmbargoRecord(EmbargoRecord embargoRecord);
     Boolean updateEmbargoRecord(EmbargoRecord embargoRecord);
     Boolean deleteEmbargoRecord(Integer Id);
-    AuditEmbargoRecord addAuditEmbargoRecord(AuditEmbargoRecord auditEmbargoRecord);
     Integer getLastInsertedId();
 }

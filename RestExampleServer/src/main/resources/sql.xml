@@ -57,4 +57,17 @@
                                                                                               record_id)
                                                     values(?, ?, ?, ?, ?, ?, ?, ?, ?)" />
     <Statement  name="getLastInsertId" sqlString="select MAX(ID) as ID from firm_embargo_domain"/>
+    <Statement name="getAuditEmbargoRecordsForId" sqlString="select id,
+                                                     firm_id,
+                                                     email_domain,
+                                                     source,
+                                                     user_email,
+                                                     full_anon_days,
+                                                     firm_visible_days,
+                                                     full_visible_days,
+                                                     action,
+                                                     record_id,
+                                                     date
+                                             from audit_embargo_records
+                                             where record_id= ? " />
 </Sql>

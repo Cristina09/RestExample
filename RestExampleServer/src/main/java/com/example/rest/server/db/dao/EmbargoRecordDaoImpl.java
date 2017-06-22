@@ -128,24 +128,6 @@ public class EmbargoRecordDaoImpl implements EmbargoRecordDao {
         }
     }
 
-    @Override
-    public AuditEmbargoRecord addAuditEmbargoRecord(AuditEmbargoRecord auditEmbargoRecord) {
-        List<Query> queries = new ArrayList<>();
-        queries.add(new Query("insertAuditEmbargoRecords", auditEmbargoRecord.getFirmId(), auditEmbargoRecord.getEmailDomain(),auditEmbargoRecord.getSource(), auditEmbargoRecord.getUserEmail(), auditEmbargoRecord.getFullAnonDays(), auditEmbargoRecord.getFirmVisibleDays(), auditEmbargoRecord.getFullVisibleDays(), auditEmbargoRecord.getAction(), auditEmbargoRecord.getRecordId()));
-
-        try {
-            if (!this.connection.executeTransaction(queries)){
-                LOGGER.error(String.format("Could not save AuditEmbargoRecord for id [%d]!", auditEmbargoRecord.getId()));
-                return null;
-            }
-        } catch (Exception exception) {
-            LOGGER.error(String.format("Exception saving AuditEmbargoRecord for id [%d]: ", auditEmbargoRecord.getId()), exception);
-            return null;
-        }
-
-        return auditEmbargoRecord;
-    }
-
     private EmbargoRecord buildObject(ResultSet rs) throws SQLException {
         Integer id = rs.getInt("id");
         Integer firmId = rs.getInt("firm_id");
@@ -153,8 +135,6 @@ public class EmbargoRecordDaoImpl implements EmbargoRecordDao {
         Integer fullAnonDays = rs.getInt("full_anon_days");
         Integer firmVisibleDays = rs.getInt("firm_visible_days");
         Integer fullVisibleDays = rs.getInt("full_visible_days");
-
-
 
         return new EmbargoRecord(id, firmId, emailDomain, fullAnonDays, firmVisibleDays, fullVisibleDays);
     }

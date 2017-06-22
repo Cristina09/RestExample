@@ -5,9 +5,11 @@ package com.example.rest.server.web; /**
 import com.example.rest.client.EmbargoRecordService;
 import com.example.rest.client.model.AuditEmbargoRecord;
 import com.example.rest.client.model.EmbargoRecord;
+import com.example.rest.client.response.AuditEmbargoRecordListResponse;
 import com.example.rest.client.response.DeleteEmbargoRecordResponse;
 import com.example.rest.client.response.EmbargoRecordListResponse;
 import com.example.rest.client.response.EmbargoRecordResponse;
+import com.example.rest.server.db.dao.AuditEmbargoRecordDao;
 import com.example.rest.server.db.dao.DaoFactory;
 import com.example.rest.server.db.dao.EmbargoRecordDao;
 import com.google.inject.Inject;
@@ -124,21 +126,12 @@ public class EmbargoRecordServiceImpl implements EmbargoRecordService {
                 for(EmbargoRecord embargoRecord : embargoRecords){
                     EmbargoRecord record = embargoRecordDao.addEmbargoRecord(embargoRecord);
                     //Create audit embargo record
-                    AuditEmbargoRecord auditEmbargoRecord = new AuditEmbargoRecord();
-                    auditEmbargoRecord.setFirmId(embargoRecord.getFirmId());
-                    auditEmbargoRecord.setEmailDomain(embargoRecord.getEmailDomain());
-                    auditEmbargoRecord.setSource(source);
-                    auditEmbargoRecord.setUserEmail(userEmail);
-                    auditEmbargoRecord.setFullAnonDays(embargoRecord.getFullAnonDays());
-                    auditEmbargoRecord.setFirmVisibleDays(embargoRecord.getFirmVisibleDays());
-                    auditEmbargoRecord.setFullVisibleDays(embargoRecord.getFullVisibleDays());
-                    auditEmbargoRecord.setAction("New record");
-                    //get embargo record id
-                    auditEmbargoRecord.setRecordId(embargoRecordDao.getLastInsertedId());
+                    AuditEmbargoRecord auditEmbargoRecord = createAuditEmbargoRecord(embargoRecord,source,userEmail,"Added", embargoRecordDao.getLastInsertedId());
                     if (null == record) {
                         return new EmbargoRecordListResponse(EmbargoRecordListResponse.ErrorCode.DATABASE_EXCEPTION);
                     }
-                    AuditEmbargoRecord auditRecord = embargoRecordDao.addAuditEmbargoRecord(auditEmbargoRecord);
+                    AuditEmbargoRecordDao auditEmbargoRecordDao = daoFactory.createAuditEmbargoDao();
+                    AuditEmbargoRecord auditRecord = auditEmbargoRecordDao.addAuditEmbargoRecord(auditEmbargoRecord);
                     if (auditRecord == null){
                         return new EmbargoRecordListResponse(EmbargoRecordListResponse.ErrorCode.DATABASE_EXCEPTION);
                     }
@@ -172,24 +165,15 @@ public class EmbargoRecordServiceImpl implements EmbargoRecordService {
                 daoFactory = new DaoFactory();
                 EmbargoRecordDao embargoRecordDao = daoFactory.createEmbargoDao();
                 //Create audit embargo record
-                AuditEmbargoRecord auditEmbargoRecord = new AuditEmbargoRecord();
-                auditEmbargoRecord.setFirmId(embargoRecord.getFirmId());
-                auditEmbargoRecord.setEmailDomain(embargoRecord.getEmailDomain());
-                auditEmbargoRecord.setSource(source);
-                auditEmbargoRecord.setUserEmail(userEmail);
-                auditEmbargoRecord.setFullAnonDays(embargoRecord.getFullAnonDays());
-                auditEmbargoRecord.setFirmVisibleDays(embargoRecord.getFirmVisibleDays());
-                auditEmbargoRecord.setFullVisibleDays(embargoRecord.getFullVisibleDays());
-                auditEmbargoRecord.setAction("Updated record");
-                auditEmbargoRecord.setRecordId(embargoRecord.getId());
+                AuditEmbargoRecord auditEmbargoRecord = createAuditEmbargoRecord(embargoRecord, source, userEmail, "Updated", Id);
 
                 Boolean updated = embargoRecordDao.updateEmbargoRecord(embargoRecord);
                 if (!updated) {
                     return new EmbargoRecordResponse(EmbargoRecordResponse.ErrorCode.DATABASE_EXCEPTION);
                 }
-
                 //add to audit table
-                AuditEmbargoRecord auditRecord = embargoRecordDao.addAuditEmbargoRecord(auditEmbargoRecord);
+                AuditEmbargoRecordDao auditEmbargoRecordDao = daoFactory.createAuditEmbargoDao();
+                AuditEmbargoRecord auditRecord = auditEmbargoRecordDao.addAuditEmbargoRecord(auditEmbargoRecord);
                 if (auditRecord == null){
                     return new EmbargoRecordResponse(EmbargoRecordResponse.ErrorCode.DATABASE_EXCEPTION);
                 }
@@ -255,18 +239,10 @@ public class EmbargoRecordServiceImpl implements EmbargoRecordService {
             if (isRecordDeleted) {
                 LOGGER.info(String.format("Embargo record deleted for id: [%d]", Id));
                 //Create audit embargo record
-                AuditEmbargoRecord auditEmbargoRecord = new AuditEmbargoRecord();
-                auditEmbargoRecord.setFirmId(embargoRecord.getFirmId());
-                auditEmbargoRecord.setEmailDomain(embargoRecord.getEmailDomain());
-                auditEmbargoRecord.setSource(source);
-                auditEmbargoRecord.setUserEmail(userEmail);
-                auditEmbargoRecord.setFullAnonDays(embargoRecord.getFullAnonDays());
-                auditEmbargoRecord.setFirmVisibleDays(embargoRecord.getFirmVisibleDays());
-                auditEmbargoRecord.setFullVisibleDays(embargoRecord.getFullVisibleDays());
-                auditEmbargoRecord.setAction("Deleted record");
-                auditEmbargoRecord.setRecordId(Id);
+                AuditEmbargoRecord auditEmbargoRecord = createAuditEmbargoRecord(embargoRecord, source, userEmail, "Deleted", Id);
                 //add to audit table
-                AuditEmbargoRecord auditRecord = embargoRecordDao.addAuditEmbargoRecord(auditEmbargoRecord);
+                AuditEmbargoRecordDao auditEmbargoRecordDao = daoFactory.createAuditEmbargoDao();
+                AuditEmbargoRecord auditRecord = auditEmbargoRecordDao.addAuditEmbargoRecord(auditEmbargoRecord);
                 return true;
             }
             else {
@@ -281,5 +257,44 @@ public class EmbargoRecordServiceImpl implements EmbargoRecordService {
                 daoFactory.close();
             }
         }
+    }
+
+    private AuditEmbargoRecord createAuditEmbargoRecord(EmbargoRecord embargoRecord, String source, String userEmail, String action, Integer Id){
+        AuditEmbargoRecord auditEmbargoRecord = new AuditEmbargoRecord();
+        auditEmbargoRecord.setFirmId(embargoRecord.getFirmId());
+        auditEmbargoRecord.setEmailDomain(embargoRecord.getEmailDomain());
+        auditEmbargoRecord.setSource(source);
+        auditEmbargoRecord.setUserEmail(userEmail);
+        auditEmbargoRecord.setFullAnonDays(embargoRecord.getFullAnonDays());
+        auditEmbargoRecord.setFirmVisibleDays(embargoRecord.getFirmVisibleDays());
+        auditEmbargoRecord.setFullVisibleDays(embargoRecord.getFullVisibleDays());
+        auditEmbargoRecord.setAction(action + " record");
+        auditEmbargoRecord.setRecordId(Id);
+        return auditEmbargoRecord;
+    }
+
+    @GET
+    @Path("/audit/{Id}")
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    public AuditEmbargoRecordListResponse getAuEmbargoRecordListResponse(@PathParam("Id") Integer Id) {
+        LOGGER.info(String.format("Received GET request for [/embargo/%d]", Id));
+        DaoFactory daoFactory = null;
+        List<AuditEmbargoRecord> auditEmbargoRecords = null;
+        try {
+            daoFactory = new DaoFactory();
+            AuditEmbargoRecordDao auditEmbargoRecordDao = daoFactory.createAuditEmbargoDao();
+            auditEmbargoRecords = auditEmbargoRecordDao.getAuditEmbargoRecordsForId(Id);
+            if (null == auditEmbargoRecords || auditEmbargoRecords.isEmpty()) {
+                return new AuditEmbargoRecordListResponse(AuditEmbargoRecordListResponse.ErrorCode.RECORDS_NOT_FOUND);
+            }
+        } catch (Exception exception) {
+            LOGGER.error("Exception using DaoFactory: ", exception);
+            return new AuditEmbargoRecordListResponse(AuditEmbargoRecordListResponse.ErrorCode.DATABASE_EXCEPTION);
+        } finally {
+            if (daoFactory != null) {
+                daoFactory.close();
+            }
+        }
+        return new AuditEmbargoRecordListResponse(auditEmbargoRecords);
     }
 }
