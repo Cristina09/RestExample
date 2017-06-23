@@ -164,8 +164,10 @@ public class EmbargoRecordServiceImpl implements EmbargoRecordService {
             try {
                 daoFactory = new DaoFactory();
                 EmbargoRecordDao embargoRecordDao = daoFactory.createEmbargoDao();
+                //Get record before update
+                EmbargoRecord oldEmbargoRecord = embargoRecordDao.getEmbargoRecordById(embargoRecord.getId());
                 //Create audit embargo record
-                AuditEmbargoRecord auditEmbargoRecord = createAuditEmbargoRecord(embargoRecord, source, userEmail, "Updated", Id);
+                AuditEmbargoRecord auditEmbargoRecord = createAuditEmbargoRecord(oldEmbargoRecord, source, userEmail, "Updated", Id);
 
                 Boolean updated = embargoRecordDao.updateEmbargoRecord(embargoRecord);
                 if (!updated) {
@@ -190,15 +192,28 @@ public class EmbargoRecordServiceImpl implements EmbargoRecordService {
     }
 
     @DELETE
-    @Path("/{source}/{Id}")
+    @Path("/{source}/{firmId}/{emailDomain}")
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    public DeleteEmbargoRecordResponse deleteEmbargoRecord(@PathParam("Id") Integer Id,
+    public DeleteEmbargoRecordResponse deleteEmbargoRecord(@PathParam("firmId") Integer firmId,
+                                                           @PathParam("emailDomain") String emailDomain,
                                                            @PathParam("source") String source,
                                                            @HeaderParam("userEmail") String userEmail) {
 
-        LOGGER.info(String.format("Received DELETE request for [/embargo/%s/%d]",source, Id));
-        if (deleteRecordAndAddAuditEntry(Id, source, userEmail)){
-            return new DeleteEmbargoRecordResponse(DeleteEmbargoRecordResponse.SuccessCode.RECORD_DELETED);
+        LOGGER.info(String.format("Received DELETE request for [/embargo/%s/%d/%s]",source, firmId, emailDomain));
+        DaoFactory daoFactory = null;
+        try {
+            daoFactory = new DaoFactory();
+            EmbargoRecordDao embargoRecordDao = daoFactory.createEmbargoDao();
+            EmbargoRecord embargoRecord = embargoRecordDao.getEmbargoRecord(firmId, emailDomain);
+            if (deleteRecordAndAddAuditEntry(embargoRecord.getId(), source, userEmail)){
+                return new DeleteEmbargoRecordResponse(DeleteEmbargoRecordResponse.SuccessCode.RECORD_DELETED);
+            }
+        } catch (Exception exception) {
+            return new DeleteEmbargoRecordResponse(DeleteEmbargoRecordResponse.ErrorCode.DATABASE_EXCEPTION);
+        }finally {
+            if(null != daoFactory){
+                daoFactory.close();
+            }
         }
         return new DeleteEmbargoRecordResponse(DeleteEmbargoRecordResponse.ErrorCode.RECORD_NOT_DELETED);
     }

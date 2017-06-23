@@ -53,10 +53,11 @@ public interface EmbargoRecordService {
                                                      @HeaderParam("userEmail") String userEmail);
 
     @DELETE
-    @Path("/{source}/{Id}")
+    @Path("/{source}/{firmId}/{emailDomain}")
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    public DeleteEmbargoRecordResponse deleteEmbargoRecord(@PathParam("Id") Integer Id,
+    public DeleteEmbargoRecordResponse deleteEmbargoRecord(@PathParam("firmId") Integer firmId,
+                                                           @PathParam("emailDomain") String emailDomain,
                                                            @PathParam("source") String source,
                                                            @HeaderParam("userEmail") String userEmail);
 

@@ -32,8 +32,6 @@
                                              from firm_embargo_domain" />
     <Statement name="deleteEmbargoRecord" sqlString="delete from firm_embargo_domain
 	                                                 where id = ?" />
-    <Statement name="deleteEmbargoRecords" sqlString="delete from firm_embargo_domain
-	                                                  where firm_id = ?" />
     <Statement name="insertEmbargoRecord" sqlString="insert into firm_embargo_domain (firm_id,
                                                                                       email_domain,
                                                                                       full_anon_days,
